@@ -16,6 +16,9 @@ import com.example.javakotlin.data.remote.model.League
 import com.example.javakotlin.data.remote.model.Team
 import com.example.javakotlin.ui.detail.TeamDetailActivity
 import com.example.javakotlin.ui.main.adapter.TeamRvAdapter
+import com.example.javakotlin.utils.gone
+import com.example.javakotlin.utils.show
+import com.example.javakotlin.utils.toast
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), MainActivityView{
@@ -40,7 +43,9 @@ class MainActivity : AppCompatActivity(), MainActivityView{
         sp_mainactivity.onItemSelectedListener=object : AdapterView.OnItemSelectedListener{
             override fun onNothingSelected(p0: AdapterView<*>?) {}
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, selectedIndex: Int, p3: Long) {
-                presenter.getAllTeamInLeague(listLeague[selectedIndex].idLeague)
+                listLeague[selectedIndex].idLeague?.let {
+                    presenter.getAllTeamInLeague(it)
+                }
             }
         }
 
@@ -52,7 +57,7 @@ class MainActivity : AppCompatActivity(), MainActivityView{
         rv_mainactivity_team?.layoutManager= LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         rv_mainactivity_team?.adapter= rvAdapter
 
-        presenter = MainActivityPresenter(this, RetrofitClient.getInstance())
+        presenter = MainActivityPresenter(this, RetrofitClient.instance)
         presenter.getAllLeagues()
     }
 
@@ -60,7 +65,7 @@ class MainActivity : AppCompatActivity(), MainActivityView{
         listLeague.clear()
         listLeague.addAll(leagues)
         for(i in 0 until listLeague.size){
-            listLeagueName.add(listLeague[i].strLeague)
+            listLeague[i].strLeague?.let { listLeagueName.add(it) }
         }
         spinnerAdapter.notifyDataSetChanged()
     }
@@ -72,16 +77,16 @@ class MainActivity : AppCompatActivity(), MainActivityView{
     }
 
     override fun showLoading() {
-        pb_mainactivity.visibility = View.VISIBLE
-        rv_mainactivity_team.visibility = View.GONE
+        pb_mainactivity.show()
+        rv_mainactivity_team.gone()
     }
 
     override fun hideLoading() {
-        pb_mainactivity.visibility = View.GONE
-        rv_mainactivity_team.visibility = View.VISIBLE
+        pb_mainactivity.gone()
+        rv_mainactivity_team.show()
     }
 
     override fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        toast(message = message)
     }
 }
